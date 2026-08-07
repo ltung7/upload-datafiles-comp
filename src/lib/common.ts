@@ -1,8 +1,12 @@
-import type { DataFilesDescriptor, DataFilesType, PreprocessFunction } from "./index.d";
+import type { DataFilesDescriptor, DataFilesType, DataFileType, PreprocessFunction } from "./index.d";
 import pdf from './preprocessPdf'
 import xml from './preprocessXml'
+import json from './preprocessJson'
+import yaml from './preprocessYaml'
+import sqlite from './preprocessSqlite'
 import datasheets from './preprocessDatasheet'
-const modules = { xml, pdf, datasheets }
+import markdown from './preprocessMarkdown'
+const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown }
 
 export const validateAndProcess = async (typedata: DataFilesDescriptor, headers: string[], contents: any[], filename: string, extraData: any): Promise<any | undefined> => {
     if (typedata.headerLength && typedata.headerLength !== headers.length) {
@@ -23,26 +27,60 @@ export const validateAndProcess = async (typedata: DataFilesDescriptor, headers:
     }
 };
 
-export const readFileContens = async (file: File): Promise<ArrayBuffer> => {
+export function readFileContens(file: File, asText: true): Promise<string>;
+export function readFileContens(file: File, asText?: false): Promise<ArrayBuffer>;
+export function readFileContens(
+    file: File, 
+    asText: boolean = false
+): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                if (!e.target) throw new Error('Invalid file type');
-                resolve(e.target.result as ArrayBuffer);
-            } catch (err) {
-                reject(err);
+
+        // Standard load handler
+        reader.onload = () => {
+            if (reader.result !== null) {
+                resolve(reader.result);
+            } else {
+                reject(new Error('Failed to read file contents: result was null'));
             }
         };
-        reader.readAsArrayBuffer(file);
-    });
-};
 
-export const generateFileTypes = (keys: (keyof DataFilesType)[]) => {
+        // Standard error handler
+        reader.onerror = () => {
+            reject(reader.error || new Error('An error occurred reading the file.'));
+        };
+
+        // Switch reading mode based on asText flag
+        if (asText) {
+            reader.readAsText(file);
+        } else {
+            reader.readAsArrayBuffer(file);
+        }
+    });
+}
+
+interface GeneratedFileTypes {
+    extensions: string[];
+    preprocessors: Record<string, PreprocessFunction>;
+    accept: string;
+}
+
+export function generateFileTypes(keys: (DataFileType | `${DataFileType}`)[]): GeneratedFileTypes;
+export function generateFileTypes(datafiles: DataFilesType): GeneratedFileTypes;
+export function generateFileTypes(): GeneratedFileTypes;
+export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | DataFilesType | undefined): GeneratedFileTypes {
+    let validKeys: DataFileType[] = []
+    if (Array.isArray(keys)) {
+        validKeys = keys as DataFileType[];
+    } else if (typeof keys === 'object' && keys !== null) {
+        validKeys = Object.keys(keys) as DataFileType[];
+    } else {
+        validKeys = Object.keys(modules) as DataFileType[];
+    }
     const extensions: string[] = []
     const preprocessors: Record<string, PreprocessFunction> = {}
 
-    for (const key of keys) {
+    for (const key of validKeys) {
         const module = modules[key]
         if (!module) continue
 

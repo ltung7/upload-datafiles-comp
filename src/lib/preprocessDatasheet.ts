@@ -23,7 +23,6 @@ const preprocessDatasheet: PreprocessFunction = async (file: File, datafiles: Da
     for (const [type, typedata] of Object.entries(datafiles.datasheets)) {
         const result = await validateAndProcess(typedata, headers, data, file.name, extraData);
         if (result) {
-            result.descriptor = type;
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }
     }

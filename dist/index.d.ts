@@ -1,4 +1,30 @@
-export type DataFilesProcessor<R = any> = (data: any[], filename: string, extraData?: any) => Promise<R>; 
+import type { Database } from 'sql.js';
+
+export enum DataFileType {
+    DATASHEETS = 'datasheets',
+    PDF = 'pdf',
+    XML = 'xml',
+    JSON = 'json',
+    YAML = 'yaml',
+    SQLITE = 'sqlite',
+    MARKDOWN = 'markdown',
+}
+
+type DataForFileType<T extends DataFileType> =
+    T extends DataFileType.PDF ? string[] :
+    T extends DataFileType.JSON ? any :
+    T extends DataFileType.MARKDOWN ? Record<string, any> :
+    T extends DataFileType.YAML ? Record<string, any> :
+    T extends DataFileType.XML ? any :
+    T extends DataFileType.SQLITE ? Database :
+    T extends DataFileType.DATASHEETS ? Array<Record<string, any>> :
+    any;
+
+export type DataFilesProcessor<R = any, T extends DataFileType = DataFileType> = (
+    data: DataForFileType<T>,
+    filename: string,
+    extraData?: any
+) => Promise<R>;
 
 export interface DataFilesDescriptor {
     headers: string[];
@@ -8,11 +34,9 @@ export interface DataFilesDescriptor {
     checkFilename?: (name: string) => boolean;
 }
 
-export interface DataFilesType<R = DataFilesDescriptor> {
-    datasheets?: Record<string,R>;
-    pdf?: Record<string,R>;
-    xml?: Record<string,R>;
-}
+export type DataFilesType<R = DataFilesDescriptor> = {
+    [K in DataFileType]?: Record<string, R>;
+};
 
 export interface DataFilePreprocessResult<R = any, D = DataFilesDescriptor> {
     result: R;
@@ -20,8 +44,8 @@ export interface DataFilePreprocessResult<R = any, D = DataFilesDescriptor> {
     typedata: D
 }
 
-export type PreprocessFunction = (file: File, datafiles: DataFilesType<any>, extraData: any) => Promise<false | DataFilePreprocessResult>;
- 
+export type PreprocessFunction = (file: File, datafiles: DataFilesType<any>, extraData?: any) => Promise<false | DataFilePreprocessResult>;
+
 export type FileTypeConfig = {
     extensions: string[]
     preprocess: PreprocessFunction
@@ -53,4 +77,4 @@ export type UploadDatafilesEvents<T extends DataFilesDescriptor> = ReturnType<__
 export type UploadDatafilesSlots<T extends DataFilesDescriptor> = ReturnType<__sveltets_Render<T>['slots']>;
 export default class UploadDatafiles<T extends DataFilesDescriptor> extends SvelteComponentTyped<UploadDatafilesProps<T>, UploadDatafilesEvents<T>, UploadDatafilesSlots<T>> {
 }
-export {};
+export { };

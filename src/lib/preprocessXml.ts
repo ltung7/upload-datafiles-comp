@@ -1,4 +1,4 @@
-import { validateAndProcess } from './common';
+import { readFileContens, validateAndProcess } from './common';
 import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
 
 let xmlParserModule: any;
@@ -10,16 +10,6 @@ async function loadXmlParser() {
     }
     return xmlParserModule;
 }
-
-// File -> raw text (XML equivalent of readDatasheet)
-const readXmlFile = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsText(file);
-    });
-};
 
 // Walk down the parsed object, taking the first key at each level,
 // until `depth` levels have been collected.
@@ -46,13 +36,12 @@ const getXmlHeaders = (parsed: Record<string, unknown>, depth: number): string[]
 
 const preprocessXmlFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
     if (!datafiles.xml) return false;
-    const content = await readXmlFile(file);
+    const content = await readFileContens(file, true);
     const { XMLParser, XMLValidator } = await loadXmlParser();
 
     const isValid = XMLValidator.validate(content);
     if (isValid !== true) {
-        console.error('Invalid XML in', file.name, isValid.err);
-        return false;
+        throw new Error(`Invalid XML in ${file.name}: ${isValid.err}`);
     }
 
     const parser = new XMLParser({
@@ -66,7 +55,6 @@ const preprocessXmlFile: PreprocessFunction = async (file: File, datafiles: Data
         const headers = getXmlHeaders(parsedContent, typedata.headerLength!);
         const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
         if (result) {
-            result.descriptor = type;
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }
     }

@@ -1,7 +1,11 @@
 import pdf from './preprocessPdf';
 import xml from './preprocessXml';
+import json from './preprocessJson';
+import yaml from './preprocessYaml';
+import sqlite from './preprocessSqlite';
 import datasheets from './preprocessDatasheet';
-const modules = { xml, pdf, datasheets };
+import markdown from './preprocessMarkdown';
+const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown };
 export const validateAndProcess = async (typedata, headers, contents, filename, extraData) => {
     if (typedata.headerLength && typedata.headerLength !== headers.length) {
         return false;
@@ -20,26 +24,45 @@ export const validateAndProcess = async (typedata, headers, contents, filename, 
         return await typedata.process(contents, filename, extraData);
     }
 };
-export const readFileContens = async (file) => {
+export function readFileContens(file, asText = false) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                if (!e.target)
-                    throw new Error('Invalid file type');
-                resolve(e.target.result);
+        // Standard load handler
+        reader.onload = () => {
+            if (reader.result !== null) {
+                resolve(reader.result);
             }
-            catch (err) {
-                reject(err);
+            else {
+                reject(new Error('Failed to read file contents: result was null'));
             }
         };
-        reader.readAsArrayBuffer(file);
+        // Standard error handler
+        reader.onerror = () => {
+            reject(reader.error || new Error('An error occurred reading the file.'));
+        };
+        // Switch reading mode based on asText flag
+        if (asText) {
+            reader.readAsText(file);
+        }
+        else {
+            reader.readAsArrayBuffer(file);
+        }
     });
-};
-export const generateFileTypes = (keys) => {
+}
+export function generateFileTypes(keys) {
+    let validKeys = [];
+    if (Array.isArray(keys)) {
+        validKeys = keys;
+    }
+    else if (typeof keys === 'object' && keys !== null) {
+        validKeys = Object.keys(keys);
+    }
+    else {
+        validKeys = Object.keys(modules);
+    }
     const extensions = [];
     const preprocessors = {};
-    for (const key of keys) {
+    for (const key of validKeys) {
         const module = modules[key];
         if (!module)
             continue;
@@ -50,4 +73,4 @@ export const generateFileTypes = (keys) => {
     }
     const accept = extensions.map((ext) => `.${ext}`).join(',');
     return { extensions, preprocessors, accept };
-};
+}

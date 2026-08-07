@@ -37,7 +37,6 @@ const preprocessPdf: PreprocessFunction = async (file: File, datafiles: DataFile
         const headers = contents.slice(0, typedata.headerLength ?? 20);
         const result = await validateAndProcess(typedata, headers, contents, file.name, extraData);
         if (result) {
-            result.descriptor = type;
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }
     }
