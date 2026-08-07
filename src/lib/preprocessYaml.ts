@@ -27,7 +27,6 @@ const preprocessYamlFile: PreprocessFunction = async (file: File, datafiles: Dat
     return false;
 };
 
-
 export default {
     preprocess: preprocessYamlFile,
     extensions: [ 'yaml', 'yml' ]

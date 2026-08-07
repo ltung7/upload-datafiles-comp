@@ -5,19 +5,23 @@ export enum DataFileType {
     PDF = 'pdf',
     XML = 'xml',
     JSON = 'json',
+    JSONL = 'jsonl',
     YAML = 'yaml',
     SQLITE = 'sqlite',
     MARKDOWN = 'markdown',
+    PHP = 'php',
 }
 
 type DataForFileType<T extends DataFileType> =
     T extends DataFileType.PDF ? string[] :
     T extends DataFileType.JSON ? Record<string, any> :
+    T extends DataFileType.JSONL ? AsyncGenerator :
     T extends DataFileType.MARKDOWN ? Record<string, any> :
     T extends DataFileType.YAML ? Record<string, any> :
     T extends DataFileType.XML ? any :
     T extends DataFileType.SQLITE ? Database :
     T extends DataFileType.DATASHEETS ? Array<Record<string, any>> :
+    T extends DataFileType.PHP ? any :
     any;
 
 export type DataFilesProcessor<R = any, T extends DataFileType = DataFileType> = (

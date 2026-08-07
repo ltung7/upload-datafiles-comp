@@ -16,7 +16,6 @@ const preprocessJsonFile: PreprocessFunction = async (file: File, datafiles: Dat
     return false;
 };
 
-
 export default {
     preprocess: preprocessJsonFile,
     extensions: [ 'json', 'geojson' ]

@@ -61,7 +61,6 @@ const preprocessXmlFile: PreprocessFunction = async (file: File, datafiles: Data
     return false;
 };
 
-
 export default {
     preprocess: preprocessXmlFile,
     extensions: [ 'xml', 'xliff', 'xaml', 'rss', 'atom', 'plist' ]

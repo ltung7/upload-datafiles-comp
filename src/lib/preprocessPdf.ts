@@ -3,7 +3,6 @@ import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
 
 let pdfjsModule: any;
 
-
 const loadPdfJs = async (): Promise<any> => {
     if (!pdfjsModule) {
         // @ts-expect-error skip type check

@@ -14,10 +14,24 @@ const processSqlite: DataFilesProcessor<any, DataFileType.SQLITE> = async (db, f
         return { data, filename };
 }
 
+const processJsonLarge: DataFilesProcessor<any, DataFileType.JSONL> = async (iterator, filename) => {
+    const data: any[] = []
+    for await (const record of iterator) {
+        data.push(record)
+    }
+    return { data, filename }
+}
+
 const logSqliteProcessor: DataFilesDescriptor = {
     headers: [],
     headerLength: 0,
     process: processSqlite
+};
+
+const logJsonLargeProcessor: DataFilesDescriptor = {
+    headers: [],
+    headerLength: 0,
+    process: processJsonLarge
 };
 
 const datafiles: DataFilesType<any> = {
@@ -42,33 +56,12 @@ const datafiles: DataFilesType<any> = {
     sqlite: {
         logSqlite: logSqliteProcessor
     },
+    jsonl: {
+        logJsonLarge: logJsonLargeProcessor
+    },
+    php: {
+        logPhp: logProcessor
+    },
 }
 
 export default datafiles;
-
-// fileReaderPolyfill.ts
-export class NodeFileReader {
-    result: ArrayBuffer | string | null = null
-    onload: ((ev: { target: NodeFileReader }) => void) | null = null
-    onerror: ((ev: { target: NodeFileReader }) => void) | null = null
-
-    readAsArrayBuffer(file: File) {
-        file
-            .arrayBuffer()
-            .then((buf) => {
-                this.result = buf
-                this.onload?.({ target: this })
-            })
-            .catch(() => this.onerror?.({ target: this }))
-    }
-
-    readAsText(file: File) {
-        file
-            .text()
-            .then((text) => {
-                this.result = text
-                this.onload?.({ target: this })
-            })
-            .catch(() => this.onerror?.({ target: this }))
-    }
-}

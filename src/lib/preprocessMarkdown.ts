@@ -31,7 +31,6 @@ const preprocessMarkdownFile: PreprocessFunction = async (file: File, datafiles:
     return false;
 };
 
-
 export default {
     preprocess: preprocessMarkdownFile,
     extensions: [ 'md' ]

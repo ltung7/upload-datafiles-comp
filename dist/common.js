@@ -1,11 +1,13 @@
 import pdf from './preprocessPdf';
 import xml from './preprocessXml';
 import json from './preprocessJson';
+import jsonl from './preprocessJsonLarge';
 import yaml from './preprocessYaml';
 import sqlite from './preprocessSqlite';
 import datasheets from './preprocessDatasheet';
 import markdown from './preprocessMarkdown';
-const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown };
+import php from './preprocessPhp';
+const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown, jsonl, php };
 export const validateAndProcess = async (typedata, headers, contents, filename, extraData) => {
     if (typedata.headerLength && typedata.headerLength !== headers.length) {
         return false;

@@ -31,7 +31,6 @@ const preprocessSqliteFile: PreprocessFunction = async (file: File, datafiles: D
     return false;
 };
 
-
 export default {
     preprocess: preprocessSqliteFile,
     extensions: ['sqlite', 'db']
