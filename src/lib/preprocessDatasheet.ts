@@ -5,7 +5,8 @@ let xlsxModule: any;
 
 const loadXlsx = async (): Promise<any> => {
     if (!xlsxModule) {
-        xlsxModule = await import('xlsx');
+        const { read, utils } = await import('xlsx');
+        xlsxModule = { read, utils };
     }
     return xlsxModule;
 };

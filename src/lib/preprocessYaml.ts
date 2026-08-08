@@ -1,11 +1,13 @@
 import { readFileContens, validateAndProcess } from './common';
 import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
 
-let yamlParserModule: any;
+type LoadFunction = (input: string, options?: any) => any;
+let yamlParserModule: LoadFunction;
 
 async function loadYamlParser() {
     if (!yamlParserModule) {
-        yamlParserModule = await import('js-yaml');
+        const { load } = await import('js-yaml');
+        yamlParserModule = load;
     }
     return yamlParserModule;
 }
@@ -13,11 +15,11 @@ async function loadYamlParser() {
 const preprocessYamlFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
     if (!datafiles.yaml) return false;
     const content = await readFileContens(file, true);
-    const yaml = await loadYamlParser();
-    const parsedContent = yaml.load(content);
+    const parseYaml = await loadYamlParser();
+    const parsedContent = parseYaml(content);
 
     for (const [type, typedata] of Object.entries(datafiles.yaml)) {
-        const headers = Object.keys(yaml);
+        const headers = Object.keys(parsedContent);
         const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };

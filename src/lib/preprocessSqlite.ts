@@ -1,7 +1,8 @@
+import type { SqlJsStatic } from 'sql.js';
 import { readFileContens, validateAndProcess } from './common';
 import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
 
-let sqliteParserModule: any;
+let sqliteParserModule: SqlJsStatic | undefined;
 
 async function loadSqliteParser() {
     if (!sqliteParserModule) {
@@ -10,7 +11,7 @@ async function loadSqliteParser() {
         if (typeof window !== 'undefined') {
             wasmPath = 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/';
         } else {
-            wasmPath = import.meta.resolve('sql.js/dist/');
+            wasmPath =  import.meta.resolve('sql.js').split('/').slice(0, -1).join('/') + '/';
         }
 
         sqliteParserModule = await initSqlJs({
@@ -26,9 +27,10 @@ const preprocessSqliteFile: PreprocessFunction = async (file: File, datafiles: D
     const arrayBuffer = await readFileContens(file)
     const db = new sql.Database(new Uint8Array(arrayBuffer));
     const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table'")[0].values.flat()
+    if (!tables) throw new Error("SQLite file has no tables");
 
     for (const [type, typedata] of Object.entries(datafiles.sqlite)) {
-        const result = await validateAndProcess(typedata, tables, db, file.name, extraData);
+        const result = await validateAndProcess(typedata, tables as string[], db, file.name, extraData);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

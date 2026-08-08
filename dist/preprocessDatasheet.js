@@ -2,7 +2,8 @@ import { readFileContens, validateAndProcess } from './common';
 let xlsxModule;
 const loadXlsx = async () => {
     if (!xlsxModule) {
-        xlsxModule = await import('xlsx');
+        const { read, utils } = await import('xlsx');
+        xlsxModule = { read, utils };
     }
     return xlsxModule;
 };

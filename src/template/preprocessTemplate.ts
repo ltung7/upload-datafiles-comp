@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { readFileContens, validateAndProcess } from './common';
 import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
 

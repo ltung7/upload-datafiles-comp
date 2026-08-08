@@ -8,6 +8,9 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...svelte.configs['flat/recommended'],
   {
+    ignores: ["src/template/preprocessTemplate.ts"],
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.browser,

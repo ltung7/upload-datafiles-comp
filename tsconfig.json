@@ -15,6 +15,11 @@
   },
   "include": [
     "src/**/*",
+    "tests/*",
     "*.ts"
+  ],
+  "exclude": [
+    "src/template/*",
+    "src/template/preprocessTemplate.ts"
   ]
 }

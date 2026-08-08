@@ -5,7 +5,8 @@ let markdownParserModule: any;
 
 async function loadMarkdownParser() {
     if (!markdownParserModule) {
-        markdownParserModule = await import('parse-markdown-table');
+        const { createMarkdownObjectTable } = await import('parse-markdown-table');
+        markdownParserModule = { createMarkdownObjectTable }
     }
     return markdownParserModule;
 }

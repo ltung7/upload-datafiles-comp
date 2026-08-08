@@ -2,12 +2,12 @@ import { readFileContens, validateAndProcess } from './common';
 import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
 
 const preprocessJsonFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
-    if (!datafiles.xml) return false;
+    if (!datafiles.json) return false;
     const content = await readFileContens(file, true);
     const parsedContent = JSON.parse(content);
     const headers = Object.keys(parsedContent);
     
-    for (const [type, typedata] of Object.entries(datafiles.xml)) {
+    for (const [type, typedata] of Object.entries(datafiles.json)) {
         const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };

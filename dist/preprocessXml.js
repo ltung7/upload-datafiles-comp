@@ -2,7 +2,8 @@ import { readFileContens, validateAndProcess } from './common';
 let xmlParserModule;
 async function loadXmlParser() {
     if (!xmlParserModule) {
-        xmlParserModule = await import('fast-xml-parser');
+        const { XMLParser } = await import('fast-xml-parser');
+        xmlParserModule = XMLParser;
     }
     return xmlParserModule;
 }
@@ -30,17 +31,19 @@ const preprocessXmlFile = async (file, datafiles, extraData) => {
     if (!datafiles.xml)
         return false;
     const content = await readFileContens(file, true);
-    const { XMLParser, XMLValidator } = await loadXmlParser();
-    const isValid = XMLValidator.validate(content);
-    if (isValid !== true) {
-        throw new Error(`Invalid XML in ${file.name}: ${isValid.err}`);
-    }
+    const XMLParser = await loadXmlParser();
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '@_',
         parseTagValue: false // keep ALL tag text as strings
     });
-    const parsedContent = parser.parse(content);
+    let parsedContent;
+    try {
+        parsedContent = parser.parse(content);
+    }
+    catch (err) {
+        throw new Error(`Invalid XML in ${file.name}: ${err.message}`);
+    }
     for (const [type, typedata] of Object.entries(datafiles.xml)) {
         const headers = getXmlHeaders(parsedContent, typedata.headerLength);
         const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);

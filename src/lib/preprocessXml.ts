@@ -1,13 +1,15 @@
 import { readFileContens, validateAndProcess } from './common';
 import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
+type XMLParserClass = typeof import('fast-xml-parser').XMLParser;
 
-let xmlParserModule: any;
+let xmlParserModule: XMLParserClass | undefined;
 
-async function loadXmlParser() {
+async function loadXmlParser(): Promise<XMLParserClass> {
     if (!xmlParserModule) {
-        xmlParserModule = await import('fast-xml-parser');
+        const { XMLParser } = await import('fast-xml-parser');
+        xmlParserModule = XMLParser;
     }
-    return xmlParserModule;
+    return xmlParserModule as XMLParserClass;
 }
 
 // Walk down the parsed object, taking the first key at each level,
@@ -36,19 +38,21 @@ const getXmlHeaders = (parsed: Record<string, unknown>, depth: number): string[]
 const preprocessXmlFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
     if (!datafiles.xml) return false;
     const content = await readFileContens(file, true);
-    const { XMLParser, XMLValidator } = await loadXmlParser();
-
-    const isValid = XMLValidator.validate(content);
-    if (isValid !== true) {
-        throw new Error(`Invalid XML in ${file.name}: ${isValid.err}`);
-    }
+    const XMLParser = await loadXmlParser();
 
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '@_',
-        parseTagValue: false // keep ALL tag text as strings
+        textNodeName: '#text',
+        trimValues: true,
     });
-    const parsedContent = parser.parse(content);
+    let parsedContent;
+    try {
+        parsedContent = parser.parse(content);
+    } catch (err) {
+        throw new Error(`Invalid XML in ${file.name}: ${(err as Error).message}`);
+
+    }
 
     for (const [type, typedata] of Object.entries(datafiles.xml)) {
         const headers = getXmlHeaders(parsedContent, typedata.headerLength!);
@@ -62,5 +66,5 @@ const preprocessXmlFile: PreprocessFunction = async (file: File, datafiles: Data
 
 export default {
     preprocess: preprocessXmlFile,
-    extensions: [ 'xml', 'xliff', 'xaml', 'rss', 'atom', 'plist' ]
+    extensions: ['xml', 'xliff', 'xaml', 'rss', 'atom', 'plist']
 } as FileTypeConfig;

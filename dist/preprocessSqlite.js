@@ -8,7 +8,7 @@ async function loadSqliteParser() {
             wasmPath = 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/';
         }
         else {
-            wasmPath = import.meta.resolve('sql.js/dist/');
+            wasmPath = import.meta.resolve('sql.js').split('/').slice(0, -1).join('/') + '/';
         }
         sqliteParserModule = await initSqlJs({
             locateFile: (file) => wasmPath + file
@@ -23,6 +23,8 @@ const preprocessSqliteFile = async (file, datafiles, extraData) => {
     const arrayBuffer = await readFileContens(file);
     const db = new sql.Database(new Uint8Array(arrayBuffer));
     const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table'")[0].values.flat();
+    if (!tables)
+        throw new Error("SQLite file has no tables");
     for (const [type, typedata] of Object.entries(datafiles.sqlite)) {
         const result = await validateAndProcess(typedata, tables, db, file.name, extraData);
         if (result) {
