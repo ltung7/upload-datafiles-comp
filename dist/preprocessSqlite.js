@@ -2,10 +2,17 @@ import { readFileContens, validateAndProcess } from './common';
 let sqliteParserModule;
 async function loadSqliteParser() {
     if (!sqliteParserModule) {
-        // @ts-expect-error skip type check
-        const initSqlJs = (await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/sql.js@1.13.0/+esm")).default;
-        // @ts-expect-error skip type check
-        sqliteParserModule = await initSqlJs({ locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.13.0/dist/${file}` });
+        const initSqlJs = (await import('sql.js')).default;
+        let wasmPath;
+        if (typeof window !== 'undefined') {
+            wasmPath = 'https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/';
+        }
+        else {
+            wasmPath = import.meta.resolve('sql.js/dist/');
+        }
+        sqliteParserModule = await initSqlJs({
+            locateFile: (file) => wasmPath + file
+        });
     }
     return sqliteParserModule;
 }

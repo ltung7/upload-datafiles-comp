@@ -76,3 +76,16 @@ export function generateFileTypes(keys) {
     const accept = extensions.map((ext) => `.${ext}`).join(',');
     return { extensions, preprocessors, accept };
 }
+export const processFile = async (file, datafiles, extraData) => {
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const { preprocessors } = generateFileTypes(datafiles);
+    if (!ext || !preprocessors[ext])
+        throw new Error("Plik ma nieprawidłowe rozszerzenie");
+    const preprocess = preprocessors[ext];
+    const result = await preprocess(file, datafiles, extraData);
+    if (result) {
+        return result;
+    }
+    else
+        throw new Error("Specyfikacja nie została rozpoznana");
+};

@@ -10,8 +10,8 @@ const logProcessor: DataFilesDescriptor = {
 
 const processSqlite: DataFilesProcessor<any, DataFileType.SQLITE> = async (db, filename) => {
     const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table'")[0].values.flat()
-        const data = db.exec(`SELECT * FROM ${tables[0]}`);
-        return { data, filename };
+    const data = db.exec(`SELECT * FROM ${tables[0]}`);
+    return { data, filename };
 }
 
 const processJsonLarge: DataFilesProcessor<any, DataFileType.JSONL> = async (iterator, filename) => {
@@ -65,3 +65,30 @@ const datafiles: DataFilesType<any> = {
 }
 
 export default datafiles;
+
+// fileReaderPolyfill.ts
+export class NodeFileReader {
+    result: ArrayBuffer | string | null = null
+    onload: ((ev: { target: NodeFileReader }) => void) | null = null
+    onerror: ((ev: { target: NodeFileReader }) => void) | null = null
+
+    readAsArrayBuffer(file: File) {
+        file
+            .arrayBuffer()
+            .then((buf) => {
+                this.result = buf
+                this.onload?.({ target: this })
+            })
+            .catch(() => this.onerror?.({ target: this }))
+    }
+
+    readAsText(file: File) {
+        file
+            .text()
+            .then((text) => {
+                this.result = text
+                this.onload?.({ target: this })
+            })
+            .catch(() => this.onerror?.({ target: this }))
+    }
+}

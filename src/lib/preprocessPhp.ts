@@ -5,8 +5,8 @@ let phpParserModule: any;
 
 async function loadPhpParser() {
     if (!phpParserModule) {
-        // @ts-expect-error skip type check
-        phpParserModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/php-serialize@5.1.3/+esm');
+        const unserialize = await import('locutus/php/var/unserialize');
+        phpParserModule = unserialize.unserialize;
     }
     return phpParserModule;
 }
@@ -14,7 +14,7 @@ async function loadPhpParser() {
 const preprocessPhpFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
     if (!datafiles.php) return false;
     const content = await readFileContens(file, true);
-    const { unserialize } = await loadPhpParser();
+    const unserialize = await loadPhpParser();
     const parsedContent = unserialize(content, {}, { strict: false });
     const headers = Object.keys(parsedContent);
     

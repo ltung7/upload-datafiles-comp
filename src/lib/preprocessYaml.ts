@@ -5,8 +5,7 @@ let yamlParserModule: any;
 
 async function loadYamlParser() {
     if (!yamlParserModule) {
-        // @ts-expect-error skip type check
-        yamlParserModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/+esm');
+        yamlParserModule = await import('js-yaml');
     }
     return yamlParserModule;
 }

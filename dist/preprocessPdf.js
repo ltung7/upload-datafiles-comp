@@ -2,9 +2,14 @@ import { readFileContens, validateAndProcess } from "./common";
 let pdfjsModule;
 const loadPdfJs = async () => {
     if (!pdfjsModule) {
-        // @ts-expect-error skip type check
-        pdfjsModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs');
-        pdfjsModule.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+        pdfjsModule = await import('pdfjs-dist/legacy/build/pdf.mjs');
+        if (typeof window !== 'undefined') {
+            // Browser (Vite): Dynamically load Vite's asset URL
+            pdfjsModule.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.1.200/build/pdf.worker.min.mjs';
+        }
+        else {
+            pdfjsModule.GlobalWorkerOptions.workerSrc = import.meta.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs');
+        }
     }
     return pdfjsModule;
 };

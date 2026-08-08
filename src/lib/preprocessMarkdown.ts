@@ -5,14 +5,13 @@ let markdownParserModule: any;
 
 async function loadMarkdownParser() {
     if (!markdownParserModule) {
-        // @ts-expect-error skip type check
-        markdownParserModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/parse-markdown-table@0.0.6/+esm');
+        markdownParserModule = await import('parse-markdown-table');
     }
     return markdownParserModule;
 }
 
 const preprocessMarkdownFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
-    if (!datafiles.xml) return false;
+    if (!datafiles.markdown) return false;
     const content = await readFileContens(file, true);
     const { createMarkdownObjectTable } = await loadMarkdownParser();
     const mdContent = await createMarkdownObjectTable(content);
@@ -22,7 +21,7 @@ const preprocessMarkdownFile: PreprocessFunction = async (file: File, datafiles:
     }
     const headers = Object.keys(parsedContens[0]);
 
-    for (const [type, typedata] of Object.entries(datafiles.xml)) {
+    for (const [type, typedata] of Object.entries(datafiles.markdown)) {
         const result = await validateAndProcess(typedata, headers, parsedContens, file.name, extraData);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };

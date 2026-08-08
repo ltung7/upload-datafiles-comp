@@ -5,8 +5,7 @@ let __type__ParserModule: any;
 
 async function load__Type__Parser() {
     if (!__type__ParserModule) {
-        // @ts-expect-error skip type check
-        __type__ParserModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/package/+esm');
+        __type__ParserModule = await import('__type__');
     }
     return __type__ParserModule;
 }

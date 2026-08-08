@@ -5,8 +5,7 @@ let xmlParserModule: any;
 
 async function loadXmlParser() {
     if (!xmlParserModule) {
-        // @ts-expect-error skip type check
-        xmlParserModule = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/fast-xml-parser@4.5.3/+esm');
+        xmlParserModule = await import('fast-xml-parser');
     }
     return xmlParserModule;
 }

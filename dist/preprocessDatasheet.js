@@ -2,8 +2,7 @@ import { readFileContens, validateAndProcess } from './common';
 let xlsxModule;
 const loadXlsx = async () => {
     if (!xlsxModule) {
-        // @ts-expect-error skip type check
-        xlsxModule = await import(/* @vite-ignore */ 'https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs');
+        xlsxModule = await import('xlsx');
     }
     return xlsxModule;
 };

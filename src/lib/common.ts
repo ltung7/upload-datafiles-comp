@@ -32,7 +32,7 @@ export const validateAndProcess = async (typedata: DataFilesDescriptor, headers:
 export function readFileContens(file: File, asText: true): Promise<string>;
 export function readFileContens(file: File, asText?: false): Promise<ArrayBuffer>;
 export function readFileContens(
-    file: File, 
+    file: File,
     asText: boolean = false
 ): Promise<string | ArrayBuffer> {
     return new Promise((resolve, reject) => {
@@ -95,4 +95,15 @@ export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | 
     const accept = extensions.map((ext) => `.${ext}`).join(',')
 
     return { extensions, preprocessors, accept }
+}
+
+export const processFile = async (file: File, datafiles: DataFilesType, extraData?: any) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() as string;
+    const { preprocessors } = generateFileTypes(datafiles);
+    if (!ext || !preprocessors[ext]) throw new Error("Plik ma nieprawidłowe rozszerzenie");
+    const preprocess = preprocessors[ext];
+    const result = await preprocess(file, datafiles, extraData);
+    if (result) {
+        return result;
+    } else throw new Error("Specyfikacja nie została rozpoznana");
 }
