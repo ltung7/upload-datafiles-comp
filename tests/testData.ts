@@ -1,7 +1,9 @@
 import fs from "fs";
-
 import { processFile } from "../src/lib/common";
 import datafiles, { NodeFileReader } from "../testParserDatafiles";
+import { chromium } from 'playwright';
+import { build } from 'esbuild';
+import type { DataFilesDescriptor, DataFilePreprocessResult } from "../src/lib/index.d";
 
 if (typeof globalThis.FileReader === 'undefined') {
     (globalThis as any).FileReader = NodeFileReader;
@@ -90,6 +92,76 @@ export const testNodeProductsArray = async (data: any, contents: string | ArrayB
     // Act: Process the file using the system's processing workflow
     const result = await processFile(testFile, datafiles);
     result.typedata.process = undefined as never;
+    return { result, expected }
+}
+
+function toBase64(contents: string | ArrayBuffer | Buffer): string {
+    if (typeof contents === 'string') {
+        return Buffer.from(contents, 'utf-8').toString('base64');
+    }
+    if (Buffer.isBuffer(contents)) {
+        return contents.toString('base64');
+    }
+    // TypeScript automatically narrows contents to ArrayBuffer here
+    return Buffer.from(contents).toString('base64');
+}
+
+export const testBrowserProductsArray = async (data: any, contents: string | ArrayBuffer | Buffer, ext: string, logType?: string) => {
+    const b64string: string = toBase64(contents);
+    const filename = 'test.' + ext;
+    const esm = await build({
+        stdin: {
+            contents: `
+                import { generateFileTypes } from './src/lib/common';
+                import datafiles from './testParserDatafiles';
+
+                window.generateFileTypes = generateFileTypes;
+                window.datafiles = datafiles;
+            `,
+            resolveDir: process.cwd(),
+            loader: 'ts',
+        },
+        bundle: true,
+        format: 'esm',
+        write: false,
+        platform: 'browser',
+    });
+    const bundledCode = esm.outputFiles[0].text;
+
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+    await page.goto('about:blank');
+    page.on('console', msg => console.log('[browser]', msg.text()));
+    page.on('pageerror', err => console.error('[browser error]', err));
+    await page.addScriptTag({
+        content: bundledCode,
+        type: 'module',
+    });
+    const result: DataFilePreprocessResult<any, DataFilesDescriptor> = await page.evaluate(async ({ content, filename, ext }) => {
+        // console.log((window as any).generateFileTypes)
+        const { preprocessors } = (window as any).generateFileTypes();
+        const preprocess = preprocessors[ext];
+
+        const binaryString = atob(content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        const file = new File([bytes], filename);
+
+        const runResult = await preprocess(file, (window as any).datafiles);
+        return runResult;
+    }, { content: b64string, filename, ext });
+
+    if (!logType) logType = 'log' + ext[0].toUpperCase() + ext.slice(1)
+    const expected = testResults(data, filename, logType);
+    if (typeof contents === 'string') {
+        fs.writeFileSync('/tmp/ub-' + filename, contents);
+    } else {
+        fs.writeFileSync('/tmp/ub-' + filename, new Uint8Array(contents));
+    }
+    result.typedata.process = undefined as never;
+    await browser.close();
     return { result, expected }
 }
 

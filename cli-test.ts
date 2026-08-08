@@ -53,7 +53,7 @@ const main = async () => {
         content: bundledCode,
         type: 'module',
     });
-    const brwoserResult = await page.evaluate(async ({ content, filename, ext }) => {
+    const browserResult = await page.evaluate(async ({ content, filename, ext }) => {
         const { preprocessors } = generateFileTypes()
         const preprocess = preprocessors[ext];
 
@@ -69,7 +69,7 @@ const main = async () => {
     }, { content, filename, ext });
 
     // const result = await preprocess(file, datafiles)
-    console.log(util.inspect(brwoserResult, { showHidden: false, depth: null, colors: true }));
+    console.log(util.inspect(browserResult, { showHidden: false, depth: null, colors: true }));
     await browser.close();
 }
 

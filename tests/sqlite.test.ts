@@ -1,7 +1,5 @@
 import initSqlJs, { type Database } from 'sql.js';
-import fs from 'fs';
-
-import { TESTPRODUCTS, testNodeProductsArray } from "./testData";
+import { TESTPRODUCTS, testBrowserProductsArray, testNodeProductsArray } from "./testData";
 import { test, describe, expect } from 'vitest';
 
 let SQL: Awaited<ReturnType<typeof initSqlJs>> | null = null;
@@ -54,8 +52,8 @@ export async function makeProductsSqliteBuffer(): Promise<Buffer> {
     return Buffer.from(data);
 }
 
-describe('File Processing Sqlite file Workflow', () => {
-    test('Converts TESTPRODUCTS Sqlite to valid File object and processes correctly', async () => {
+describe('SQLite file processing', () => {
+    test('Generates a SQLite Buffer and parses it back correctly (Node)', async () => {
         const contents = await makeProductsSqliteBuffer()
         const expectedData = [{
             columns: ["id", "price", "inStock", "tags", "rating", "discount", "comments"],
@@ -70,9 +68,28 @@ describe('File Processing Sqlite file Workflow', () => {
             ])
         }]
         const { result, expected } = await testNodeProductsArray(expectedData, contents, 'sqlite')
-        fs.writeFileSync('/tmp/testresults.json', JSON.stringify({ result, expected }, null, 4))
         // Assert: Verify the processed result matches original TESTPRODUCTS
         expect(result).toEqual(expected);
         expect(result.result.data.length).toBe(expectedData.length);
     })
+    
+    test('Generates a SQLite Buffer and parses it back correctly (browser)', async () => {
+        const contents = await makeProductsSqliteBuffer()
+        const expectedData = [{
+            columns: ["id", "price", "inStock", "tags", "rating", "discount", "comments"],
+            values: TESTPRODUCTS.map(p => [
+                p.id,
+                p.price,
+                p.inStock ? 1 : 0,
+                (p.tags ?? []).join(', '),
+                p.rating ?? null,
+                p.discount ?? null,
+                p.comments ?? null,
+            ])
+        }]
+        const { result, expected } = await testBrowserProductsArray(expectedData, contents, 'sqlite')
+        // Assert: Verify the processed result matches original TESTPRODUCTS
+        expect(result).toEqual(expected);
+        expect(result.result.data.length).toBe(expectedData.length);
+    }, 10000)
 });

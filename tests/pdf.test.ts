@@ -1,8 +1,8 @@
 import PDFDocument from 'pdfkit';
-
-import { stringifyProductsData, testNodeProductsArray } from "./testData";
+import { stringifyProductsData, testBrowserProductsArray, testNodeProductsArray } from "./testData";
 import { test, describe, expect } from 'vitest';
-export function makeProductsPdfBuffer(
+
+function makeProductsPdfBuffer(
     rows: ReturnType<typeof stringifyProductsData> = stringifyProductsData()
 ): Promise<Buffer> {
     return new Promise((resolve, reject) => {
@@ -64,8 +64,8 @@ export function makeProductsPdfBuffer(
     });
 }
 
-describe('File Processing PDF file Workflow', () => {
-    test('Converts TESTPRODUCTS PDF to valid File object and processes correctly', async () => {
+describe('PDF File processing', () => {
+    test('Generates a PDF Buffer and parses it back correctly (Node)', async () => {
         // Build the matrix of strings: header row + data rows
         const data = stringifyProductsData();
         const contents = await makeProductsPdfBuffer(data);
@@ -82,4 +82,22 @@ describe('File Processing PDF file Workflow', () => {
         expect(result).toEqual(expected);
         expect(result.result.data.length).toBe(expectedData.length);
     })
+
+    test('Generates a PDF Buffer and parses it back correctly (browser)', async () => {
+        // Build the matrix of strings: header row + data rows
+        const data = stringifyProductsData();
+        const contents = await makeProductsPdfBuffer(data);
+        const expectedData = [ "Products", "", "ID", " ", "Price", " ", "In Stock", " ", "Tags", " ", "Rating", " ", "Discount", " ", "Comments", "", "A001", " ", "19.99", " ", "true", " ", "new, best-seller", " ", "0", " ", "0", " ", "0", "B002", " ", "5", " ", "false", " ", "4.2", " ", "0", " ", "0", "C003", " ", "120", " ", "true", " ", "0", " ", "15", " ", "0", "D004", " ", "8", " ", "true", " ", "0", " ", "0", " ", "0", "E005", " ", "250", " ", "false", " ", "0", " ", "0", " ", "12" ];
+        const { result, expected } = await testBrowserProductsArray(expectedData, contents, 'pdf', 'logPdf')
+
+        // Assert: Verify the processed result matches original TESTPRODUCTS
+        for (const item of result.result.data) {
+            for (let i = 0; i < item.length; i++) {
+                if (typeof item[i] === 'undefined') item[i] = '';
+            }
+        }
+
+        expect(result).toEqual(expected);
+        expect(result.result.data.length).toBe(expectedData.length);
+    }, 10000)
 });
