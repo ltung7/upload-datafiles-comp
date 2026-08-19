@@ -62,6 +62,9 @@ const datafiles: DataFilesType<any> = {
     php: {
         logPhp: logProcessor
     },
+    image: {
+        logImage: logProcessor
+    },
 }
 
 export default datafiles;

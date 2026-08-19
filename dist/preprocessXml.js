@@ -35,7 +35,8 @@ const preprocessXmlFile = async (file, datafiles, extraData) => {
     const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: '@_',
-        parseTagValue: false // keep ALL tag text as strings
+        textNodeName: '#text',
+        trimValues: true,
     });
     let parsedContent;
     try {

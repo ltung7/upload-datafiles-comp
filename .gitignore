@@ -16,3 +16,4 @@ app.yaml
 *.old.*
 *-old
 sc/*
+*.ds.ts
