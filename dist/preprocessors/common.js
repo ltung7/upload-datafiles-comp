@@ -8,7 +8,8 @@ import datasheets from './preprocessDatasheet';
 import markdown from './preprocessMarkdown';
 import php from './preprocessPhp';
 import image from './preprocessImage';
-const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown, jsonl, php, image };
+import epp from './preprocessEpp';
+const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown, jsonl, php, image, epp };
 export const validateAndProcess = async (typedata, headers, contents, filename, extraData) => {
     if (typedata.headerLength && typedata.headerLength !== headers.length) {
         return false;
@@ -80,7 +81,6 @@ export function generateFileTypes(keys) {
 export const processFile = async (file, datafiles, extraData) => {
     const ext = file.name.split(".").pop()?.toLowerCase();
     const { preprocessors } = generateFileTypes(datafiles);
-    console.log(preprocessors);
     if (!ext || !preprocessors[ext])
         throw new Error("Plik ma nieprawidłowe rozszerzenie");
     const preprocess = preprocessors[ext];

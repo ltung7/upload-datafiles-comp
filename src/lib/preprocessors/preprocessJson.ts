@@ -1,5 +1,5 @@
 import { readFileContens, validateAndProcess } from './common';
-import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
+import { PreprocessFunction, DataFilesType, FileTypeConfig } from '../index.d';
 
 const preprocessJsonFile: PreprocessFunction = async (file: File, datafiles: DataFilesType<any>, extraData: any) => {
     if (!datafiles.json) return false;

@@ -1,4 +1,4 @@
-import { FileTypeConfig } from './index.d';
+import { FileTypeConfig } from '../index.d';
 
 export default {
     preprocess: async () => false ,

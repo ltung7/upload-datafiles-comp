@@ -2,7 +2,7 @@
 // npx tsx testfile.ts
 import fs from 'fs';
 import { DataFilesDescriptor, DataFilesType } from './src/lib/index.d';
-import { processFile } from './src/lib/common';
+import { processFile } from "./src/lib/preprocessors/common";
 import { NodeFileReader } from './testParserDatafiles';
 import { readFile } from 'node:fs/promises'
 import util from 'util';
@@ -38,6 +38,9 @@ const datafiles: DataFilesType = {
     pdf: {
         hix,
         process: saveProcessor,
+    },
+    epp: {
+        process: saveProcessor
     },
     image: {
         

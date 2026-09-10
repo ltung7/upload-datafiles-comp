@@ -1,6 +1,6 @@
 import type { SqlJsStatic } from 'sql.js';
 import { readFileContens, validateAndProcess } from './common';
-import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
+import { PreprocessFunction, DataFilesType, FileTypeConfig } from '../index.d';
 
 let sqliteParserModule: SqlJsStatic | undefined;
 

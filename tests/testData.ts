@@ -1,5 +1,5 @@
 import fs from "fs";
-import { processFile } from "../src/lib/common";
+import { processFile } from "../src/lib/preprocessors/common";
 import datafiles, { NodeFileReader } from "../testParserDatafiles";
 import { chromium } from 'playwright';
 import { build } from 'esbuild';

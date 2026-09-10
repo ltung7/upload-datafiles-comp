@@ -1,4 +1,4 @@
-import type { DataFilesDescriptor, DataFilesType, DataFileType, PreprocessFunction } from "./index.d";
+import type { DataFilesDescriptor, DataFilesType, DataFileType, PreprocessFunction, FileTypeConfig } from "../index.d";
 import pdf from './preprocessPdf'
 import xml from './preprocessXml'
 import json from './preprocessJson'
@@ -9,7 +9,8 @@ import datasheets from './preprocessDatasheet'
 import markdown from './preprocessMarkdown'
 import php from './preprocessPhp';
 import image from './preprocessImage';
-const modules = { xml, pdf, datasheets, json, yaml, sqlite, markdown, jsonl, php, image }
+import epp from './preprocessEpp';
+const modules: Record<string, FileTypeConfig> = { xml, pdf, datasheets, json, yaml, sqlite, markdown, jsonl, php, image, epp }
 
 export const validateAndProcess = async (typedata: DataFilesDescriptor, headers: string[], contents: any, filename: string, extraData: any): Promise<any | undefined> => {
     if (typedata.headerLength && typedata.headerLength !== headers.length) {
@@ -72,7 +73,7 @@ export function generateFileTypes(keys: (DataFileType | `${DataFileType}`)[]): G
 export function generateFileTypes(datafiles: DataFilesType): GeneratedFileTypes;
 export function generateFileTypes(): GeneratedFileTypes;
 export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | DataFilesType | undefined): GeneratedFileTypes {
-    let validKeys: DataFileType[] = []
+    let validKeys: string[] = []
     if (Array.isArray(keys)) {
         validKeys = keys as DataFileType[];
     } else if (typeof keys === 'object' && keys !== null) {
@@ -94,14 +95,12 @@ export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | 
     }
 
     const accept = extensions.map((ext) => `.${ext}`).join(',')
-
     return { extensions, preprocessors, accept }
 }
 
 export const processFile = async (file: File, datafiles: DataFilesType, extraData?: any) => {
     const ext = file.name.split(".").pop()?.toLowerCase() as string;
     const { preprocessors } = generateFileTypes(datafiles);
-    console.log(preprocessors)
     if (!ext || !preprocessors[ext]) throw new Error("Plik ma nieprawidłowe rozszerzenie");
     const preprocess = preprocessors[ext];
     const result = await preprocess(file, datafiles, extraData);
@@ -109,3 +108,4 @@ export const processFile = async (file: File, datafiles: DataFilesType, extraDat
         return result;
     } else throw new Error("Specyfikacja nie została rozpoznana");
 }
+

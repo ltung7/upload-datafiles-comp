@@ -11,6 +11,7 @@ export enum DataFileType {
     MARKDOWN = 'markdown',
     PHP = 'php',
     IMAGE = 'image',
+    EPP = 'epp',
 }
 
 type DataForFileType<T extends DataFileType> =
@@ -19,11 +20,12 @@ type DataForFileType<T extends DataFileType> =
     T extends DataFileType.JSONL ? AsyncGenerator :
     T extends DataFileType.MARKDOWN ? Record<string, any> :
     T extends DataFileType.YAML ? Record<string, any> :
-    T extends DataFileType.XML ? any :
+    T extends DataFileType.XML ? string :
     T extends DataFileType.SQLITE ? Database :
     T extends DataFileType.DATASHEETS ? Array<Record<string, any>> :
     T extends DataFileType.PHP ? any :
-        T extends DataFileType.IMAGE ? any :
+    T extends DataFileType.IMAGE ? ArrayBuffer :
+    T extends DataFileType.EPP ? Record<string, string[]> :
     any;
 
 export type DataFilesProcessor<R = any, T extends DataFileType = DataFileType> = (
@@ -91,11 +93,11 @@ declare class __sveltets_Render<T extends DataFilesDescriptor> {
         [evt: string]: CustomEvent<any>;
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    slots(): { };
+    slots(): {};
 }
 export type UploadDatafilesProps<T extends DataFilesDescriptor> = ReturnType<__sveltets_Render<T>['props']>;
 export type UploadDatafilesEvents<T extends DataFilesDescriptor> = ReturnType<__sveltets_Render<T>['events']>;
 export type UploadDatafilesSlots<T extends DataFilesDescriptor> = ReturnType<__sveltets_Render<T>['slots']>;
 export default class UploadDatafiles<T extends DataFilesDescriptor> extends SvelteComponentTyped<UploadDatafilesProps<T>, UploadDatafilesEvents<T>, UploadDatafilesSlots<T>> {
 }
-export {};
+export { };

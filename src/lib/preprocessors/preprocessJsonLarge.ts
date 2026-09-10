@@ -1,5 +1,5 @@
 import { validateAndProcess } from './common';
-import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
+import { PreprocessFunction, DataFilesType, FileTypeConfig } from '../index.d';
 
 async function* streamJsonl(file: File) {
   const lineStream = file.stream().pipeThrough(new TextDecoderStream());

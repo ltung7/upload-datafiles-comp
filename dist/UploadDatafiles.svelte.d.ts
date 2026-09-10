@@ -13,6 +13,7 @@ declare class __sveltets_Render<T extends DataFilesDescriptor> {
             markdown?: Record<string, T> | undefined;
             php?: Record<string, T> | undefined;
             image?: Record<string, T> | undefined;
+            epp?: Record<string, T> | undefined;
         };
         extraData?: any;
         uploadCopy?: boolean | string[] | ((_s: string) => boolean) | undefined;

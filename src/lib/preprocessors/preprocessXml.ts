@@ -1,5 +1,5 @@
 import { readFileContens, validateAndProcess } from './common';
-import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
+import { PreprocessFunction, DataFilesType, FileTypeConfig } from '../index.d';
 type XMLParserClass = typeof import('fast-xml-parser').XMLParser;
 
 let xmlParserModule: XMLParserClass | undefined;

@@ -1,4 +1,4 @@
-<script>import { generateFileTypes } from "./common";
+<script>import { generateFileTypes } from "./preprocessors/common";
 import Dropzone from "svelte-file-dropzone";
 import { createEventDispatcher } from "svelte";
 const dispatch = createEventDispatcher();

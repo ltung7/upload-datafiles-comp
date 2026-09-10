@@ -1,5 +1,5 @@
 // npx tsx script.ts
-import { generateFileTypes } from './src/lib/common';
+import { generateFileTypes } from "./src/lib/preprocessors/common";
 import datafiles from './testParserDatafiles';
 import { readFile } from 'node:fs/promises'
 import { extname } from 'node:path'
@@ -28,7 +28,7 @@ const main = async () => {
     const result = await build({
         stdin: {
             contents: `
-                import { generateFileTypes } from './src/lib/common';
+                import { generateFileTypes } from "./src/lib/preprocessors/common";
                 import datafiles from './testParserDatafiles';
 
                 window.generateFileTypes = generateFileTypes;

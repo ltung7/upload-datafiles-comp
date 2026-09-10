@@ -1,5 +1,5 @@
 import { readFileContens, validateAndProcess } from './common';
-import { PreprocessFunction, DataFilesType, FileTypeConfig } from './index.d';
+import { PreprocessFunction, DataFilesType, FileTypeConfig } from '../index.d';
 
 type LoadFunction = (input: string, options?: any) => any;
 let yamlParserModule: LoadFunction;

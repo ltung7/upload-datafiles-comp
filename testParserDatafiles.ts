@@ -65,6 +65,9 @@ const datafiles: DataFilesType<any> = {
     image: {
         logImage: logProcessor
     },
+    epp: {
+        logEpp: logProcessor
+    },
 }
 
 export default datafiles;

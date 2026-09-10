@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { DataFilesDescriptor, DataFilesType, DataFilePreprocessResult } from "./index.d";
-    import { generateFileTypes } from "./common";
+    import { generateFileTypes } from "./preprocessors/common";
     import Dropzone from "svelte-file-dropzone";
     import { createEventDispatcher } from "svelte";
 	
