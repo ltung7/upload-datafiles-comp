@@ -62,6 +62,10 @@ export type FileTypeConfig = {
     preprocess: PreprocessFunction
 }
 
+export interface CustomModules {
+    [key: string]: FileTypeConfig;
+}
+
 import { SvelteComponentTyped } from "svelte";
 declare class __sveltets_Render<T extends DataFilesDescriptor> {
     props(): {

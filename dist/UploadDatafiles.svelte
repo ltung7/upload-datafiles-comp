@@ -2,9 +2,9 @@
 import Dropzone from "svelte-file-dropzone";
 import { createEventDispatcher } from "svelte";
 const dispatch = createEventDispatcher();
-export let datafiles, extraData = {}, uploadCopy = false, uploadCopyUrl = void 0, containerClasses = void 0, multiple = false, placeholder = "Wgraj plik", accept = "";
+export let datafiles, extraData = {}, uploadCopy = false, uploadCopyUrl = void 0, containerClasses = void 0, multiple = false, placeholder = "Wgraj plik", accept = "", customModules = {};
 const keys = Object.keys(datafiles);
-const { accept: genericAccept, preprocessors } = generateFileTypes(keys);
+const { accept: genericAccept, preprocessors } = generateFileTypes(keys, customModules);
 if (!accept.length) accept = genericAccept;
 const uploadCopyIncludesName = (strings, filename) => {
   for (const string of strings) {

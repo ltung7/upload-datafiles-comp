@@ -69,23 +69,30 @@ interface GeneratedFileTypes {
     accept: string;
 }
 
+export interface CustomModules {
+    [key: string]: FileTypeConfig;
+}
+
 export function generateFileTypes(keys: (DataFileType | `${DataFileType}`)[]): GeneratedFileTypes;
 export function generateFileTypes(datafiles: DataFilesType): GeneratedFileTypes;
+export function generateFileTypes(keys: (DataFileType | `${DataFileType}`)[] | DataFilesType, customModules?: CustomModules): GeneratedFileTypes;
 export function generateFileTypes(): GeneratedFileTypes;
-export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | DataFilesType | undefined): GeneratedFileTypes {
+export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | DataFilesType | undefined, customModules?: CustomModules): GeneratedFileTypes {
+    const mergedModules: Record<string, FileTypeConfig> = { ...modules, ...customModules };
+
     let validKeys: string[] = []
     if (Array.isArray(keys)) {
         validKeys = keys as DataFileType[];
     } else if (typeof keys === 'object' && keys !== null) {
         validKeys = Object.keys(keys) as DataFileType[];
     } else {
-        validKeys = Object.keys(modules) as DataFileType[];
+        validKeys = Object.keys(mergedModules) as DataFileType[];
     }
     const extensions: string[] = []
     const preprocessors: Record<string, PreprocessFunction> = {}
 
     for (const key of validKeys) {
-        const module = modules[key]
+        const module = mergedModules[key]
         if (!module) continue
 
         for (const ext of module.extensions) {
@@ -98,9 +105,9 @@ export function generateFileTypes(keys?: (DataFileType | `${DataFileType}`)[] | 
     return { extensions, preprocessors, accept }
 }
 
-export const processFile = async (file: File, datafiles: DataFilesType, extraData?: any) => {
+export const processFile = async (file: File, datafiles: DataFilesType, extraData?: any, customModules?: CustomModules) => {
     const ext = file.name.split(".").pop()?.toLowerCase() as string;
-    const { preprocessors } = generateFileTypes(datafiles);
+    const { preprocessors } = generateFileTypes(datafiles, customModules);
     if (!ext || !preprocessors[ext]) throw new Error("Plik ma nieprawidłowe rozszerzenie");
     const preprocess = preprocessors[ext];
     const result = await preprocess(file, datafiles, extraData);

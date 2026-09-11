@@ -53,7 +53,8 @@ export function readFileContens(file, asText = false) {
         }
     });
 }
-export function generateFileTypes(keys) {
+export function generateFileTypes(keys, customModules) {
+    const mergedModules = { ...modules, ...customModules };
     let validKeys = [];
     if (Array.isArray(keys)) {
         validKeys = keys;
@@ -62,12 +63,12 @@ export function generateFileTypes(keys) {
         validKeys = Object.keys(keys);
     }
     else {
-        validKeys = Object.keys(modules);
+        validKeys = Object.keys(mergedModules);
     }
     const extensions = [];
     const preprocessors = {};
     for (const key of validKeys) {
-        const module = modules[key];
+        const module = mergedModules[key];
         if (!module)
             continue;
         for (const ext of module.extensions) {
@@ -78,9 +79,9 @@ export function generateFileTypes(keys) {
     const accept = extensions.map((ext) => `.${ext}`).join(',');
     return { extensions, preprocessors, accept };
 }
-export const processFile = async (file, datafiles, extraData) => {
+export const processFile = async (file, datafiles, extraData, customModules) => {
     const ext = file.name.split(".").pop()?.toLowerCase();
-    const { preprocessors } = generateFileTypes(datafiles);
+    const { preprocessors } = generateFileTypes(datafiles, customModules);
     if (!ext || !preprocessors[ext])
         throw new Error("Plik ma nieprawidłowe rozszerzenie");
     const preprocess = preprocessors[ext];

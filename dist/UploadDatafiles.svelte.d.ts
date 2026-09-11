@@ -1,5 +1,5 @@
 import { SvelteComponentTyped } from "svelte";
-import type { DataFilesDescriptor, DataFilePreprocessResult } from "./index.d";
+import type { DataFilesDescriptor, DataFilePreprocessResult, CustomModules } from "./index.d";
 declare class __sveltets_Render<T extends DataFilesDescriptor> {
     props(): {
         datafiles: {
@@ -22,6 +22,7 @@ declare class __sveltets_Render<T extends DataFilesDescriptor> {
         multiple?: boolean;
         placeholder?: string;
         accept?: string;
+        customModules?: CustomModules;
     };
     events(): {
         uploaded: CustomEvent<File>;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { DataFilesDescriptor, DataFilesType, DataFilePreprocessResult } from "./index.d";
+    import type { DataFilesDescriptor, DataFilesType, DataFilePreprocessResult, CustomModules } from "./index.d";
     import { generateFileTypes } from "./preprocessors/common";
     import Dropzone from "svelte-file-dropzone";
     import { createEventDispatcher } from "svelte";
@@ -18,11 +18,12 @@
         containerClasses: string | undefined = undefined,
         multiple: boolean = false,
         placeholder: string = 'Wgraj plik',
-        accept: string = '';
+        accept: string = '',
+        customModules: CustomModules = {};
     type T = $$Generic<DataFilesDescriptor>;
 
     const keys = Object.keys(datafiles) as (keyof DataFilesType<T>)[];
-    const { accept: genericAccept, preprocessors } = generateFileTypes(keys);
+    const { accept: genericAccept, preprocessors } = generateFileTypes(keys, customModules);
     if (!accept.length) accept = genericAccept;
 
     const uploadCopyIncludesName = (strings: string[], filename: string): boolean => {

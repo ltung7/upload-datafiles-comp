@@ -6,7 +6,6 @@ import { processFile } from "./src/lib/preprocessors/common";
 import { NodeFileReader } from './testParserDatafiles';
 import { readFile } from 'node:fs/promises'
 import util from 'util';
-import hix from "./hix.ds";
 
 if (typeof globalThis.FileReader === 'undefined') {
   (globalThis as any).FileReader = NodeFileReader;
@@ -24,10 +23,7 @@ const logProcessor: DataFilesDescriptor = {
     headers: [],
     headerLength: 0,
     process: async (data) => {
-        let rows: any[] = data.JPK.Ewidencja.SprzedazWiersz as any | any[];
-        if (!Array.isArray(rows)) rows = [ rows ];
-        const invoices = rows.map(item => item.DowodSprzedazy)
-        return invoices;
+        console.log(data)
     }
 };
 
@@ -36,14 +32,13 @@ const datafiles: DataFilesType = {
         process: logProcessor
     },
     pdf: {
-        hix,
         process: saveProcessor,
     },
     epp: {
         process: saveProcessor
     },
     image: {
-        
+        process: logProcessor
     }
 }
 
