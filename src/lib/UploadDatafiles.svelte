@@ -1,13 +1,13 @@
 <script lang="ts">
-    import type { DataFilesDescriptor, DataFilesType, DataFilePreprocessResult, CustomModules } from "./index.d";
-    import { generateFileTypes } from "./preprocessors/common";
+    import type { DataFilesDescriptor, DataFilesType, DataFilePreprocessResult, CustomModules, DataFileError } from "./index.d";
+    import { generateFileTypes, getRecognitionDiagnostics, resetRecognitionDiagnostics } from "./preprocessors/common";
     import Dropzone from "svelte-file-dropzone";
     import { createEventDispatcher } from "svelte";
 	
     const dispatch = createEventDispatcher<{
         uploaded: File;
         start: null;
-        error: string;
+        error: DataFileError;
         processed: DataFilePreprocessResult;
     }>();
 
@@ -19,6 +19,7 @@
         multiple: boolean = false,
         placeholder: string = 'Wgraj plik',
         accept: string = '',
+        debug: boolean = false,
         customModules: CustomModules = {};
     type T = $$Generic<DataFilesDescriptor>;
 
@@ -61,17 +62,24 @@
     const processFile = async (file: File) => {
         let ext = file.name.split(".").pop() as string;
         ext = ext.toLowerCase();
-        if (!ext || !preprocessors[ext]) return dispatch("error", "Plik ma nieprawidłowe rozszerzenie");
+        if (!ext || !preprocessors[ext]) return dispatch("error", { message: "Plik ma nieprawidłowe rozszerzenie" });
         if (uploadCopy) uploadCopyAction(file);
 		dispatch('uploaded', file);
         const preprocess = preprocessors[ext];
+        resetRecognitionDiagnostics(file.name, ext);
         try {
-            const result = await preprocess(file, datafiles, extraData);
+            const result = await preprocess(file, datafiles, extraData, { debug });
             if (result) {
                 dispatch("processed", result);
-            } else dispatch("error", "Specyfikacja nie została rozpoznana");
+            } else {
+                // Everything that was parsed / OCR-ed, plus why each descriptor was rejected.
+                dispatch("error", {
+                    message: "Specyfikacja nie została rozpoznana",
+                    diagnostics: getRecognitionDiagnostics()
+                });
+            }
         } catch (err) {
-            dispatch("error", (err as Error).message);
+            dispatch("error", { message: (err as Error).message });
         }
     };
 
@@ -83,8 +91,8 @@
             }
         } else {
             const message = e.detail.fileRejections.length && e.detail.fileRejections[0].errors.length && e.detail.fileRejections[0].errors[0].message;
-            if (message) dispatch("error", "Błąd podczas dodawania pliku: " + message);
-            else dispatch("error", "Błąd podczas dodawania pliku");
+            if (message) dispatch("error", { message: "Błąd podczas dodawania pliku: " + message });
+            else dispatch("error", { message: "Błąd podczas dodawania pliku" });
         }
     }
 </script>

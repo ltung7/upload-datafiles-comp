@@ -38,7 +38,7 @@ const preprocessPdf: PreprocessFunction = async (file: File, datafiles: DataFile
     const contents = await getPdfText(contentRaw as ArrayBuffer);
     for (const [type, typedata] of Object.entries(datafiles.pdf)) {
         const headers = contents.slice(0, typedata.headerLength ?? 20);
-        const result = await validateAndProcess(typedata, headers, contents, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, contents, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

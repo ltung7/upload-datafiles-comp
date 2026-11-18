@@ -15,7 +15,7 @@ const preprocessYamlFile = async (file, datafiles, extraData) => {
     const parsedContent = parseYaml(content);
     for (const [type, typedata] of Object.entries(datafiles.yaml)) {
         const headers = Object.keys(parsedContent);
-        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

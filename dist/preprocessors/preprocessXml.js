@@ -47,7 +47,7 @@ const preprocessXmlFile = async (file, datafiles, extraData) => {
     }
     for (const [type, typedata] of Object.entries(datafiles.xml)) {
         const headers = getXmlHeaders(parsedContent, typedata.headerLength);
-        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

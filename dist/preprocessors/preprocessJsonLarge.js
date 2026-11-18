@@ -27,7 +27,7 @@ const preprocessJsonFile = async (file, datafiles, extraData) => {
     const headers = Object.keys(parsedContent);
     const jsonlStream = streamJsonl(file);
     for (const [type, typedata] of Object.entries(datafiles.jsonl)) {
-        const result = await validateAndProcess(typedata, headers, jsonlStream, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, jsonlStream, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

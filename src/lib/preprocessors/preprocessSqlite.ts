@@ -30,7 +30,7 @@ const preprocessSqliteFile: PreprocessFunction = async (file: File, datafiles: D
     if (!tables) throw new Error("SQLite file has no tables");
 
     for (const [type, typedata] of Object.entries(datafiles.sqlite)) {
-        const result = await validateAndProcess(typedata, tables as string[], db, file.name, extraData);
+        const result = await validateAndProcess(typedata, tables as string[], db, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

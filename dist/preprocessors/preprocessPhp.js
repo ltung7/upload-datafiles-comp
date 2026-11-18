@@ -15,7 +15,7 @@ const preprocessPhpFile = async (file, datafiles, extraData) => {
     const parsedContent = unserialize(content, {}, { strict: false });
     const headers = Object.keys(parsedContent);
     for (const [type, typedata] of Object.entries(datafiles.php)) {
-        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

@@ -14,7 +14,7 @@ const preprocess__Type__File = async (file, datafiles, extraData) => {
     const parsedContent = content;
     const headers = content;
     for (const [type, typedata] of Object.entries(datafiles.__type__)) {
-        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

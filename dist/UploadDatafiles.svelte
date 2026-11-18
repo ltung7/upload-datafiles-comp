@@ -1,8 +1,8 @@
-<script>import { generateFileTypes } from "./preprocessors/common";
+<script>import { generateFileTypes, getRecognitionDiagnostics, resetRecognitionDiagnostics } from "./preprocessors/common";
 import Dropzone from "svelte-file-dropzone";
 import { createEventDispatcher } from "svelte";
 const dispatch = createEventDispatcher();
-export let datafiles, extraData = {}, uploadCopy = false, uploadCopyUrl = void 0, containerClasses = void 0, multiple = false, placeholder = "Wgraj plik", accept = "", customModules = {};
+export let datafiles, extraData = {}, uploadCopy = false, uploadCopyUrl = void 0, containerClasses = void 0, multiple = false, placeholder = "Wgraj plik", accept = "", debug = false, customModules = {};
 const keys = Object.keys(datafiles);
 const { accept: genericAccept, preprocessors } = generateFileTypes(keys, customModules);
 if (!accept.length) accept = genericAccept;
@@ -39,17 +39,23 @@ const uploadCopyAction = (file) => {
 const processFile = async (file) => {
   let ext = file.name.split(".").pop();
   ext = ext.toLowerCase();
-  if (!ext || !preprocessors[ext]) return dispatch("error", "Plik ma nieprawid\u0142owe rozszerzenie");
+  if (!ext || !preprocessors[ext]) return dispatch("error", { message: "Plik ma nieprawid\u0142owe rozszerzenie" });
   if (uploadCopy) uploadCopyAction(file);
   dispatch("uploaded", file);
   const preprocess = preprocessors[ext];
+  resetRecognitionDiagnostics(file.name, ext);
   try {
-    const result = await preprocess(file, datafiles, extraData);
+    const result = await preprocess(file, datafiles, extraData, { debug });
     if (result) {
       dispatch("processed", result);
-    } else dispatch("error", "Specyfikacja nie zosta\u0142a rozpoznana");
+    } else {
+      dispatch("error", {
+        message: "Specyfikacja nie zosta\u0142a rozpoznana",
+        diagnostics: getRecognitionDiagnostics()
+      });
+    }
   } catch (err) {
-    dispatch("error", err.message);
+    dispatch("error", { message: err.message });
   }
 };
 async function handleFilesSelect(e) {
@@ -60,8 +66,8 @@ async function handleFilesSelect(e) {
     }
   } else {
     const message = e.detail.fileRejections.length && e.detail.fileRejections[0].errors.length && e.detail.fileRejections[0].errors[0].message;
-    if (message) dispatch("error", "B\u0142\u0105d podczas dodawania pliku: " + message);
-    else dispatch("error", "B\u0142\u0105d podczas dodawania pliku");
+    if (message) dispatch("error", { message: "B\u0142\u0105d podczas dodawania pliku: " + message });
+    else dispatch("error", { message: "B\u0142\u0105d podczas dodawania pliku" });
   }
 }
 </script>

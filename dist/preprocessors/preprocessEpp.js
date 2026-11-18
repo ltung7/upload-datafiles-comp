@@ -73,7 +73,7 @@ const preprocessEppFile = async (file, datafiles, extraData) => {
     const parsedContent = parseEpp(content.split('\r\n').filter(line => line.length));
     const headers = Object.keys(parsedContent);
     for (const [type, typedata] of Object.entries(datafiles.epp)) {
-        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, parsedContent, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

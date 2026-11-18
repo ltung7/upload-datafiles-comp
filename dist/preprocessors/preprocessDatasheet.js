@@ -17,7 +17,7 @@ const preprocessDatasheet = async (file, datafiles, extraData) => {
     const isTxt = file.name.toLowerCase().endsWith('.txt');
     const headers = (isTxt ? data[0] : data.shift());
     for (const [type, typedata] of Object.entries(datafiles.datasheets)) {
-        const result = await validateAndProcess(typedata, headers, data, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, data, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

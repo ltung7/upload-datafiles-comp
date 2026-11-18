@@ -19,7 +19,7 @@ const preprocessMarkdownFile = async (file, datafiles, extraData) => {
     }
     const headers = Object.keys(parsedContens[0]);
     for (const [type, typedata] of Object.entries(datafiles.markdown)) {
-        const result = await validateAndProcess(typedata, headers, parsedContens, file.name, extraData);
+        const result = await validateAndProcess(typedata, headers, parsedContens, file.name, extraData, type);
         if (result) {
             return { result, type: typedata.specification ?? type, typedata, fileName: file.name };
         }

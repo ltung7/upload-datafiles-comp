@@ -55,7 +55,40 @@ export interface DataFilePreprocessResult<R = any, D = DataFilesDescriptor> {
     typedata: D
 }
 
-export type PreprocessFunction = (file: File, datafiles: DataFilesType<any>, extraData?: any) => Promise<false | DataFilePreprocessResult>;
+/** One descriptor that was tried while recognising a file and the reason it did not match. */
+export interface RecognitionAttempt {
+    type: string;
+    specification?: string;
+    reason: string;
+    expectedHeaders?: string[];
+    receivedHeaders?: string[];
+}
+
+/** Everything that was learned while a file was (not) recognised, including extracted text. */
+export interface RecognitionDiagnostics {
+    fileName?: string;
+    fileExtension?: string;
+    dataType?: string;
+    /** Sample of the parsed / OCR-ed content. */
+    text?: string;
+    headers?: string[];
+    tried: RecognitionAttempt[];
+    notes?: string[];
+}
+
+/** Payload of the `error` event. `diagnostics` is present when a file was parsed but not recognised. */
+export interface DataFileError {
+    message: string;
+    diagnostics?: RecognitionDiagnostics;
+}
+
+/** Options passed by the uploader to a preprocessor. */
+export interface PreprocessOptions {
+    /** When true, run expensive parsing (e.g. OCR) even if it cannot produce a match, so diagnostics contain the text. */
+    debug?: boolean;
+}
+
+export type PreprocessFunction = (file: File, datafiles: DataFilesType<any>, extraData?: any, options?: PreprocessOptions) => Promise<false | DataFilePreprocessResult>;
 
 export type FileTypeConfig = {
     extensions: string[]
@@ -87,11 +120,12 @@ declare class __sveltets_Render<T extends DataFilesDescriptor> {
         multiple?: boolean;
         placeholder?: string;
         accept?: string;
+        debug?: boolean;
     };
     events(): {
         uploaded: CustomEvent<File>;
         start: CustomEvent<null>;
-        error: CustomEvent<string>;
+        error: CustomEvent<DataFileError>;
         processed: CustomEvent<DataFilePreprocessResult<any, DataFilesDescriptor>>;
     } & {
         [evt: string]: CustomEvent<any>;
