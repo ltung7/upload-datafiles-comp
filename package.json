@@ -48,6 +48,8 @@
   },
   "dependencies": {
     "fast-xml-parser": "^5.10.1",
+    "heic-convert": "^2.1.0",
+    "heic-to": "^1.6.7",
     "js-yaml": "^5.2.3",
     "locutus": "^3.0.36",
     "parse-markdown-table": "^0.0.6",
